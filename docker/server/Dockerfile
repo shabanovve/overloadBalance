@@ -16,6 +16,6 @@ EXPOSE 9010
 # JVM debugging port
 EXPOSE 5005
 
-EXPOSE 8081:8080
+EXPOSE 8080
 
 ENTRYPOINT [ "/opt/app/entrypoint.sh" ]
