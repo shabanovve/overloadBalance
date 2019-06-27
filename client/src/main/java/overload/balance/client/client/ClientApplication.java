@@ -10,33 +10,43 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.logging.Logger;
 
 @SpringBootApplication
 public class ClientApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ClientApplication.class, args);
+    private static Logger logger = Logger.getLogger(ClientApplication.class.getName());
 
-		while (true) {
-			try {
-				URL url = new URL("http://172.20.0.2:8080");
-				HttpURLConnection con = (HttpURLConnection) url.openConnection();
-				con.setRequestMethod("GET");
+    public static void main(String[] args) throws InterruptedException {
+        SpringApplication.run(ClientApplication.class, args);
 
-				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-				String inputLine;
-				StringBuilder content = new StringBuilder();
-				while ((inputLine = in.readLine()) != null) {
-					content.append(inputLine);
-				}
-				in.close();			} catch (ProtocolException e) {
-				throw new RuntimeException(e);
-			} catch (MalformedURLException e) {
-				throw new RuntimeException(e);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
+        while (true) {
+            try {
+                URL url = new URL("http://172.21.0.2:8080");
+                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                con.setRequestMethod("GET");
+                Thread.sleep(100);
+
+                con.setConnectTimeout(1000);
+                con.setReadTimeout(1000);
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                String inputLine;
+                StringBuilder content = new StringBuilder();
+                while ((inputLine = in.readLine()) != null) {
+                    content.append(inputLine);
+                }
+                in.close();
+
+                logger.info("Response " + content);
+            } catch (ProtocolException e) {
+                logger.severe(e.getMessage());
+            } catch (MalformedURLException e) {
+                logger.severe(e.getMessage());
+            } catch (IOException e) {
+                logger.severe(e.getMessage());
+            }
+        }
+    }
 
 }
