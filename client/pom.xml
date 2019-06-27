@@ -72,6 +72,7 @@
                                     <artifactId>${project.artifactId}</artifactId>
                                     <version>${project.version}</version>
                                     <type>${project.packaging}</type>
+                                    <overWrite>true</overWrite>
                                     <outputDirectory>../docker/client</outputDirectory>
                                     <destFileName>client.jar</destFileName>
                                 </artifactItem>
