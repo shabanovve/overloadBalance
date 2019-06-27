@@ -33,3 +33,4 @@ build/
 ### Docker ###
 .Dockerfile.swp
 docker/server/*.jar
+docker/client/*.jar
