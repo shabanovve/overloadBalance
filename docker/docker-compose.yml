@@ -1,0 +1,14 @@
+version: "2"
+services:
+  server_one:
+    build: ./server
+    ports:
+      - "9011:9010"
+      - "5001:5005"
+      - "8081:8080"
+  server_two:
+    build: ./server
+    ports:
+      - "9012:9010"
+      - "5002:5005"
+      - "8082:8080"
