@@ -16,13 +16,14 @@ import java.util.logging.Logger;
 public class ClientApplication {
 
     private static Logger logger = Logger.getLogger(ClientApplication.class.getName());
+    private static Server server = Server.ONE;
 
     public static void main(String[] args) throws InterruptedException {
         SpringApplication.run(ClientApplication.class, args);
 
         while (true) {
             try {
-                URL url = new URL("http://172.21.0.2:8080");
+                URL url = new URL(String.format("http://%s:8080", server.getName()));
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
                 con.setRequestMethod("GET");
                 Thread.sleep(100);
@@ -41,12 +42,26 @@ public class ClientApplication {
                 logger.info("Response " + content);
             } catch (ProtocolException e) {
                 logger.severe(e.getMessage());
+                changeServer();
             } catch (MalformedURLException e) {
                 logger.severe(e.getMessage());
+                changeServer();
             } catch (IOException e) {
                 logger.severe(e.getMessage());
+                changeServer();
             }
         }
+    }
+
+    private static Server changeServer() {
+        if (server == Server.ONE) {
+            server = Server.TWO;
+        } else {
+            server = Server.ONE;
+        }
+        logger.info("Change server to " + server.getName());
+
+        return server;
     }
 
 }
