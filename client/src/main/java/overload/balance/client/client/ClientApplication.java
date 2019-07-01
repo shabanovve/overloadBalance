@@ -1,7 +1,11 @@
 package overload.balance.client.client;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,20 +14,60 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
 
+@EnableDiscoveryClient
 @SpringBootApplication
 public class ClientApplication {
 
     private static Logger logger = Logger.getLogger(ClientApplication.class.getName());
-    private static Server server = Server.ONE;
+    private static String serverOne;
+    private static String serverTwo;
+    private static String server;
+
+    @Autowired
+    private static DiscoveryClient discoveryClient;
+
+    private static List<ServiceInstance> getInstances() throws InterruptedException {
+        List<ServiceInstance> instances = Collections.emptyList();
+        for (int attemp = 0; attemp <= 180; attemp++) {
+            if (discoveryClient == null) {
+                //logger.info("discoveryClient == null");
+            } else {
+                instances = discoveryClient.getInstances("server");
+                logger.info("Attempt to get server instances number " + attemp);
+                if (instances.size() == 2) {
+                    break;
+                } else {
+                    logger.info("Found server instances = " + instances.size());
+                }
+
+            }
+            //logger.info("Sleep 1 second");
+            Thread.sleep(1000);
+        }
+        if (instances.size() != 2) {
+            throw new RuntimeException("Found server instances = " + instances.size());
+        }
+        return instances;
+    }
 
     public static void main(String[] args) throws InterruptedException {
         SpringApplication.run(ClientApplication.class, args);
 
+        List<ServiceInstance> instances = getInstances();
+
+        serverOne = instances.get(0).getHost();
+        serverTwo = instances.get(1).getHost();
+
+        ClientApplication.server = serverOne;
+
+
         while (true) {
             try {
-                URL url = new URL(String.format("http://%s:8080", server.getName()));
+                URL url = new URL(String.format("http://%s:8080", server));
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
                 con.setRequestMethod("GET");
                 Thread.sleep(100);
@@ -53,15 +97,13 @@ public class ClientApplication {
         }
     }
 
-    private static Server changeServer() {
-        if (server == Server.ONE) {
-            server = Server.TWO;
+    private static void changeServer() {
+        if (server == serverOne) {
+            server = serverTwo;
         } else {
-            server = Server.ONE;
+            server = serverOne;
         }
-        logger.info("Change server to " + server.getName());
-
-        return server;
+        logger.info("Change server to " + server);
     }
 
 }

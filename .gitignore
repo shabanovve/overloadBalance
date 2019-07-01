@@ -34,3 +34,4 @@ build/
 .Dockerfile.swp
 docker/server/*.jar
 docker/client/*.jar
+docker/eureka/*.jar

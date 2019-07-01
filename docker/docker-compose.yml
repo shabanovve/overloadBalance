@@ -1,20 +1,48 @@
 version: "2"
 services:
+  eureka:
+    build: ./eureka
+    ports:
+      - "9014:9010"
+      - "5004:5005"
+      - "8761:8761"
+    networks:
+      vpcbr:
+        ipv4_address: 10.5.0.2
+
   server_one:
     build: ./server
     ports:
       - "9011:9010"
       - "5001:5005"
       - "8081:8080"
+    networks:
+      vpcbr:
+        ipv4_address: 10.5.0.3
+
   server_two:
     build: ./server
     ports:
       - "9012:9010"
       - "5002:5005"
       - "8082:8080"
+    networks:
+      vpcbr:
+        ipv4_address: 10.5.0.4
+
   client:
     build: ./client
     ports:
       - "9013:9010"
       - "5003:5005"
       - "8083:8080"
+    networks:
+      vpcbr:
+        ipv4_address: 10.5.0.5
+
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
