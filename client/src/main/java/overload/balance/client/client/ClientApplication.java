@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,14 +20,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
-@EnableDiscoveryClient
 @SpringBootApplication
+@EnableDiscoveryClient
+@EnableScheduling
 public class ClientApplication {
 
     private static Logger logger = Logger.getLogger(ClientApplication.class.getName());
     private static String serverOne;
     private static String serverTwo;
     private static String server;
+    private List<ServiceInstance> instances;
 
     @Autowired
     private static DiscoveryClient discoveryClient;
@@ -33,19 +37,13 @@ public class ClientApplication {
     private static List<ServiceInstance> getInstances() throws InterruptedException {
         List<ServiceInstance> instances = Collections.emptyList();
         for (int attemp = 0; attemp <= 180; attemp++) {
-            if (discoveryClient == null) {
-                //logger.info("discoveryClient == null");
-            } else {
+            if (discoveryClient != null) {
                 instances = discoveryClient.getInstances("server");
-                logger.info("Attempt to get server instances number " + attemp);
                 if (instances.size() == 2) {
                     break;
-                } else {
-                    logger.info("Found server instances = " + instances.size());
                 }
 
             }
-            //logger.info("Sleep 1 second");
             Thread.sleep(1000);
         }
         if (instances.size() != 2) {
@@ -54,47 +52,47 @@ public class ClientApplication {
         return instances;
     }
 
+    @Scheduled(fixedDelay = 1000)
+    private void process() throws InterruptedException {
+
+        if (instances == null) {
+            instances = getInstances();
+            serverOne = instances.get(0).getHost();
+            serverTwo = instances.get(1).getHost();
+            ClientApplication.server = serverOne;
+        }
+
+        try {
+            URL url = new URL(String.format("http://%s:8080", server));
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+
+            con.setConnectTimeout(1000);
+            con.setReadTimeout(1000);
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuilder content = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+
+            logger.info("Response " + content);
+        } catch (ProtocolException e) {
+            logger.severe(e.getMessage());
+            changeServer();
+        } catch (MalformedURLException e) {
+            logger.severe(e.getMessage());
+            changeServer();
+        } catch (IOException e) {
+            logger.severe(e.getMessage());
+            changeServer();
+        }
+    }
+
     public static void main(String[] args) throws InterruptedException {
         SpringApplication.run(ClientApplication.class, args);
-
-        List<ServiceInstance> instances = getInstances();
-
-        serverOne = instances.get(0).getHost();
-        serverTwo = instances.get(1).getHost();
-
-        ClientApplication.server = serverOne;
-
-
-        while (true) {
-            try {
-                URL url = new URL(String.format("http://%s:8080", server));
-                HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                con.setRequestMethod("GET");
-                Thread.sleep(100);
-
-                con.setConnectTimeout(1000);
-                con.setReadTimeout(1000);
-
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                String inputLine;
-                StringBuilder content = new StringBuilder();
-                while ((inputLine = in.readLine()) != null) {
-                    content.append(inputLine);
-                }
-                in.close();
-
-                logger.info("Response " + content);
-            } catch (ProtocolException e) {
-                logger.severe(e.getMessage());
-                changeServer();
-            } catch (MalformedURLException e) {
-                logger.severe(e.getMessage());
-                changeServer();
-            } catch (IOException e) {
-                logger.severe(e.getMessage());
-                changeServer();
-            }
-        }
     }
 
     private static void changeServer() {
@@ -107,3 +105,4 @@ public class ClientApplication {
     }
 
 }
+
