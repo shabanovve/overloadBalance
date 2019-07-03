@@ -35,3 +35,4 @@ build/
 docker/server/*.jar
 docker/client/*.jar
 docker/eureka/*.jar
+docker/dashboard/*.jar
