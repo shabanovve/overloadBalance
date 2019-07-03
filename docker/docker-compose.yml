@@ -50,6 +50,18 @@ services:
       - "eureka"
     command: sh -c './wait-for eureka:8761'
 
+  dashboard:
+      build: ./dashboard
+      ports:
+        - "7979:7979"
+      networks:
+        vpcbr:
+          ipv4_address: 10.5.0.6
+      depends_on:
+        - server_one
+        - server_two
+        - client
+
 networks:
   vpcbr:
     driver: bridge
