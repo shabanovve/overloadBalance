@@ -33,7 +33,7 @@ public class Scheduler {
         if (discoveryClient.getInstances("server").size() < 2) {
             logger.info("Waiting for eureka");
         } else {
-            String content = restTemplate().getForObject("http://server/", String.class);
+            String content = new RequestCommand(restTemplate).execute();
             logger.info("Response " + content);
         }
     }
