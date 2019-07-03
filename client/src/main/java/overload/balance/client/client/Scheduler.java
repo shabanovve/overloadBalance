@@ -1,5 +1,6 @@
 package overload.balance.client.client;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
@@ -33,8 +34,16 @@ public class Scheduler {
         if (discoveryClient.getInstances("server").size() < 2) {
             logger.info("Waiting for eureka");
         } else {
-            String content = new RequestCommand(restTemplate).execute();
-            logger.info("Response " + content);
+            logger.info("Response " + makeCall());
         }
+    }
+
+    @HystrixCommand(fallbackMethod = "doFallBack")
+    private String makeCall() {
+        return restTemplate.getForObject("http://server/", String.class);
+    }
+
+    private String doFallBack() {
+        return "fallback";
     }
 }
