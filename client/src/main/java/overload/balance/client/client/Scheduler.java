@@ -39,10 +39,12 @@ public class Scheduler {
         }
     }
 
-    @HystrixCommand(fallbackMethod = "doFallBack", commandProperties = @HystrixProperty(
-            name = "execution.isolation.thread.timeoutInMilliseconds",
-            value = "900"
-    ))
+    @HystrixCommand(
+            fallbackMethod = "doFallBack",
+            commandProperties = @HystrixProperty(
+                    name = "execution.isolation.thread.timeoutInMilliseconds",
+                    value = "900"
+            ))
     private String makeCall() {
         return restTemplate.getForObject("http://server/", String.class);
     }
