@@ -1,6 +1,7 @@
 package overload.balance.client.client;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
@@ -22,7 +23,7 @@ public class Scheduler {
 
     @LoadBalanced
     @Bean
-    RestTemplate restTemplate(){
+    RestTemplate restTemplate() {
         return new RestTemplate();
     }
 
@@ -38,7 +39,10 @@ public class Scheduler {
         }
     }
 
-    @HystrixCommand(fallbackMethod = "doFallBack")
+    @HystrixCommand(fallbackMethod = "doFallBack", commandProperties = @HystrixProperty(
+            name = "execution.isolation.thread.timeoutInMilliseconds",
+            value = "900"
+    ))
     private String makeCall() {
         return restTemplate.getForObject("http://server/", String.class);
     }
