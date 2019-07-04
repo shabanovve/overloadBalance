@@ -1,2 +1,2 @@
 #!/bin/bash
-mvn clean compile assembly:single package
+mvn clean package -DskipTest assembly:single install
