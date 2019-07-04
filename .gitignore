@@ -36,3 +36,5 @@ docker/server/*.jar
 docker/client/*.jar
 docker/eureka/*.jar
 docker/dashboard/*.jar
+
+waitFor-jar-with-dependencies.jar

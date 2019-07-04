@@ -62,7 +62,7 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-                    <outputDirectory>./target</outputDirectory>
+                    <outputDirectory>.</outputDirectory>
                     <finalName>waitFor</finalName>
                     <archive>
                         <manifest>
@@ -80,7 +80,7 @@
                 <executions>
                     <execution>
                         <id>copy</id>
-                        <phase>package</phase>
+                        <phase>install</phase>
                         <configuration>
                             <target>
                                 <echo>ANT TASK - copying files....</echo>
