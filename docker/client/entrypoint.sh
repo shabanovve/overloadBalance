@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-java -jar /opt/app/waitFor.jar http://10.2.0.5:8761
+java -jar /opt/app/waitFor.jar http://10.5.0.3:8080/actuator
+java -jar /opt/app/waitFor.jar http://10.5.0.4:8080/actuator
 
 set -x
 

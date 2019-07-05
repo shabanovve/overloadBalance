@@ -10,6 +10,8 @@ ADD dashboard.jar /opt/app/dashboard.jar
 # A simple shell script to pass JVM arguments
 ADD entrypoint.sh /opt/app/entrypoint.sh
 
+ADD waitFor.jar /opt/app/waitFor.jar
+
 # JMX
 EXPOSE 9010
 
