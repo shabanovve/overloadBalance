@@ -1,5 +1,6 @@
 # overloadBalance
 
+## Description
 Main aim is create the sample balancing of microservice request
 
 ![](diagram.png)
@@ -25,4 +26,15 @@ request. Break in call stream facilitate decrease delay.
 service
 * docker - module to build docker images with all thees application
 
+
+## Build
+* Run `mvn clean package -DskipTest assembly:single install` in every
+module.
+* Run `docker-compose up --build` in docker module.
+
+## Test
+You should see log messages like this
+
 ![](log_fragment.png)
+
+Client make request to different server.
